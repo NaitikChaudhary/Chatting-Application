@@ -48,12 +48,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot != null) {
                     String name = dataSnapshot.child("name").getValue().toString();
-                    String image = dataSnapshot.child("imageComp").getValue().toString();
                     holder.mUserName.setText(name);
-
-                    Glide.with(holder.mUserName.getContext())
-                            .load(image)
-                            .into(holder.mUserImage);
+                    if(dataSnapshot.hasChild("imageComp")) {
+                        String image = dataSnapshot.child("imageComp").getValue().toString();
+                        Glide.with(holder.mUserName.getContext())
+                                .load(image)
+                                .into(holder.mUserImage);
+                    }
 
                 }
             }

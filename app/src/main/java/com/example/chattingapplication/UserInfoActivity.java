@@ -123,6 +123,8 @@ public class UserInfoActivity extends AppCompatActivity {
                 detailMap.put("name", mUserName.getText().toString());
 
                 mRootRef.child("Users").child(mCurrentUID).setValue(detailMap);
+                Intent i = new Intent(UserInfoActivity.this, StartActivity.class);
+                startActivity(i);
                 progressBar.dismiss();
             }
 
