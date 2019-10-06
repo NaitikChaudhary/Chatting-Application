@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,20 +71,11 @@ public class ContactsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot usersSnap : dataSnapshot.getChildren()) {
 
-//                    String name = usersSnap.child("name").getValue().toString();
-//                    String UID = usersSnap.child("UID").getValue().toString();
-//                    String image = usersSnap.child("image").getValue().toString();
-//                    String imageComp = usersSnap.child("imageComp").getValue().toString();
-//
-//                    Users u = new Users(UID, name, image, imageComp);
-//                    mList.add(u);
                     Users u = usersSnap.getValue(Users.class);
-                    mList.add(u);
-                    mAdapter.notifyDataSetChanged();
-//                    for(DataSnapshot detailSnap : usersSnap.getChildren()) {
-//
-//                    }
-
+                    if(!u.getUID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                        mList.add(u);
+                        mAdapter.notifyDataSetChanged();
+                    }
 
                 }
             }

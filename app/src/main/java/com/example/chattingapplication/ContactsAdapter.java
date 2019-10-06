@@ -1,9 +1,11 @@
 package com.example.chattingapplication;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,7 +43,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public void onBindViewHolder(@NonNull final ContactsViewHolder holder, int position) {
 
 
-        Users users = mList.get(position);
+        final Users users = mList.get(position);
 
         FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUID()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -65,6 +67,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             }
         });
 
+        holder.singleContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String contact = users.getUID();
+                Intent i = new Intent(holder.singleContact.getContext(), ChatActivity.class);
+                i.putExtra("UID", contact);
+                holder.singleContact.getContext().startActivity(i);
+            }
+        });
 
     }
 
@@ -76,13 +87,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public class ContactsViewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView mUserImage;
+        private RelativeLayout singleContact;
         public TextView mUserName, onlineStatus;
         public ImageView onlineIcon;
 
         public ContactsViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            mUserImage = itemView.findViewById(R.id.profileImage);
+            singleContact = itemView.findViewById(R.id.singleUserComponent);
+            mUserImage = itemView.findViewById(R.id.profileSingleImage);
             mUserName = itemView.findViewById(R.id.userSingleName);
             onlineIcon = itemView.findViewById(R.id.onlineIcon);
             onlineStatus = itemView.findViewById(R.id.onlineText);
