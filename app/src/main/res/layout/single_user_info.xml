@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profileImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/profile_image"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:id="@+id/userSingleName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_toEndOf="@+id/profileImage"
+        android:textColor="@android:color/black"
+        android:textSize="16dp"
+        android:text="Name" />
+
+    <ImageView
+        android:id="@+id/onlineIcon"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_below="@+id/userSingleName"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@+id/profileImage"
+        android:src="@drawable/online_icon" />
+
+    <TextView
+        android:id="@+id/onlineText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/userSingleName"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:textSize="12dp"
+        android:layout_toEndOf="@+id/onlineIcon"
+        android:layout_toRightOf="@id/onlineIcon"
+        android:text="online" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/onlineText"
+        android:layout_toEndOf="@+id/profileImage"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:background="#C2C2C2"></LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="30dp"
+        android:src="@drawable/ic_chevron_right_black_24dp" />
+
+
+</RelativeLayout>

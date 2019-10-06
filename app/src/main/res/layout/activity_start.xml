@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue"
+    tools:context=".StartActivity">
+
+    <TextView
+        android:id="@+id/contactsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="0dp"
+        android:text="Contacts"
+        android:textColor="@android:color/white"
+        android:textSize="40dp" />
+
+    <EditText
+        android:id="@+id/searchContacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/contactsText"
+        android:layout_alignParentStart="true"
+        android:padding="5dp"
+        android:hint="  Search Name"
+        android:textSize="13dp"
+        android:drawableLeft="@drawable/ic_search_black_24dp"
+        android:textColorHint="#B5BBF5"
+        android:background="@drawable/search_text_background"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="25dp" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/startPager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/startTabs"
+        android:layout_below="@+id/searchContacts"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="0dp"></androidx.viewpager.widget.ViewPager>
+
+    <RelativeLayout
+        android:id="@+id/startTabs"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#C2C2C2"></LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/iconLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignTop="@+id/textLayout"
+            android:layout_alignEnd="@+id/textLayout"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <RelativeLayout
+                android:id="@+id/contactsTab"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5">
+
+                <ImageView
+                android:id="@+id/contactsIcon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerHorizontal="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/groupsTab"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5">
+
+                <ImageView
+                    android:id="@+id/groupsIcon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerHorizontal="true" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/textLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <TextView
+                android:id="@+id/startContactText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="5"
+            android:textColor="#303030"
+            android:layout_marginTop="25dp"
+            android:text="Contacts"/>
+
+            <TextView
+                android:id="@+id/startGroupText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="5"
+                android:layout_marginTop="25dp"
+                android:textColor="#969696"
+                android:text="Groups"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>
