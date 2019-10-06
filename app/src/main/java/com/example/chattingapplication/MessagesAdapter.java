@@ -1,5 +1,9 @@
 package com.example.chattingapplication;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,6 +14,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +29,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>{
 
-    public List<Messages> mList = new ArrayList<>();
+    public List<Messages> mList;
+    String image;
 
     public MessagesAdapter(List<Messages> mList) {
         this.mList = mList;
@@ -26,11 +39,151 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.single_message_layout ,parent, false);
+
+        return new MessageViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MessageViewHolder holder, int position) {
+
+        final Messages c = mList.get(position);
+        Messages k = null;
+        final String from_user_before;
+        if (position > 0) {
+            k = mList.get(position - 1);
+        }
+
+        if(k == null) {
+            from_user_before = null;
+        } else {
+            from_user_before = k.getFrom();
+        }
+
+        final String from_user = c.getFrom();
+        String message = c.getMessage();
+
+        DatabaseReference mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(from_user);
+
+        mUserDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.hasChild("imageComp")) {
+                    image = dataSnapshot.child("imageComp").getValue().toString();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        final String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final String displayUser = mUserDatabase.getKey();
+
+
+        holder.messageText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                final int position = holder.getAdapterPosition();
+
+                final DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("messages");
+
+                CharSequence options[] = new CharSequence[]{"Delete this message for me", "Cancel"};
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(holder.messageText.getContext());
+
+                builder.setTitle("Select Options");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if(which == 0) {
+                            reference.child(currentUser).child(c.getTo()).child(c.getId()).removeValue();
+                            mList.remove(position);
+                            notifyDataSetChanged();
+                        } else if(which == 1) {
+                            dialog.dismiss();
+                        }
+
+                    }
+                });
+
+                builder.show();
+
+                return false;
+
+            }
+
+        });
+
+        holder.messageTextUser.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                final int position = holder.getAdapterPosition();
+
+                final DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("messages");
+
+                CharSequence options[] = new CharSequence[]{"Delete this message for me", "Delete for everyone", "Cancel"};
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(holder.messageText.getContext());
+
+                builder.setTitle("Select Options");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if(which == 0) {
+
+                            reference.child(currentUser).child(c.getTo()).child(c.getId()).removeValue();
+                            mList.remove(position);
+                            notifyDataSetChanged();
+
+                        } else if(which == 1) {
+
+                            reference.child(c.getTo()).child(currentUser).child(c.getId()).removeValue();
+                            reference.child(currentUser).child(c.getTo()).child(c.getId()).removeValue();
+                            mList.remove(position);
+                            notifyDataSetChanged();
+
+                        } else if (which == 2) {
+                            dialog.dismiss();
+                        }
+
+                    }
+                });
+
+                builder.show();
+
+                return false;
+            }
+        });
+
+
+
+
+        holder.messageText.setVisibility(View.GONE);
+        holder.profileImage.setVisibility(View.GONE);
+        holder.messageTextUser.setVisibility(View.GONE);
+
+
+        if (displayUser.equals(currentUser)) {
+
+            holder.messageTextUser.setText(message);
+            holder.messageTextUser.setVisibility(View.VISIBLE);
+
+        } else {
+            holder.messageText.setText(message);
+            holder.messageText.setVisibility(View.VISIBLE);
+            holder.profileImage.setVisibility(View.VISIBLE);
+            Glide.with(holder.profileImage.getContext()).load(image).into(holder.profileImage);
+        }
 
     }
 
@@ -43,19 +196,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
         public TextView messageText,messageTextUser;
         public CircleImageView profileImage;
-        public ImageView messageImage;
-        public RelativeLayout mainLayout;
-        public ProgressBar mProgressbar;
 
         public MessageViewHolder(View view) {
             super(view);
 
-//            mainLayout = (RelativeLayout) view.findViewById(R.id.image_single_layout);
-//            messageText = (TextView) view.findViewById(R.id.message_text_layout);
-//            profileImage = (CircleImageView) view.findViewById(R.id.message_image_profile_image);
-//            messageImage = (ImageView) view.findViewById(R.id.image_sent_message);
-//            messageTextUser = (TextView) view.findViewById(R.id.message_text_user);
-//            mProgressbar = (ProgressBar) view.findViewById(R.id.message_image_progress);
+            messageText = (TextView) view.findViewById(R.id.message_text_layout);
+            profileImage = (CircleImageView) view.findViewById(R.id.message_image_profile_image);
+            messageTextUser = (TextView) view.findViewById(R.id.message_text_user);
 
         }
     }

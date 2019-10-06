@@ -6,5 +6,6 @@
     <color name="darkText">#303030</color>
     <color name="colorPrimaryDark">#3A49C2</color>
     <color name="colorAccent">#F03275</color>
-    <color name="colorGrey">#C2C2C2</color>
+    <color name="colorGreyLight">#C2C2C2</color>
+    <color name="colorGreyDark">#303030</color>
 </resources>
