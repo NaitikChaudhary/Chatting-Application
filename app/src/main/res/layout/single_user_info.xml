@@ -54,7 +54,7 @@
         android:layout_toEndOf="@+id/profileImage"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:background="#C2C2C2"></LinearLayout>
+        android:background="@color/colorGrey"></LinearLayout>
 
     <ImageView
         android:layout_width="wrap_content"

@@ -105,8 +105,8 @@ public class UserInfoActivity extends AppCompatActivity {
     }
 
     private void setDetails() {
-
-        if(mUserName.getText().toString().isEmpty()) {
+        String userName = mUserName.getText().toString().trim();
+        if(userName.isEmpty()) {
             Toast.makeText(this, "Enter your Name first!", Toast.LENGTH_SHORT).show();
         } else {
 
@@ -120,7 +120,7 @@ public class UserInfoActivity extends AppCompatActivity {
                 uploadImage(filePath);
             } else {
                 detailMap.put("UID",mCurrentUID);
-                detailMap.put("name", mUserName.getText().toString());
+                detailMap.put("name", userName);
 
                 mRootRef.child("Users").child(mCurrentUID).setValue(detailMap);
                 Intent i = new Intent(UserInfoActivity.this, StartActivity.class);
