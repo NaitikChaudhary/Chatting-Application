@@ -8,17 +8,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,7 +38,7 @@ public class ChatActivity extends AppCompatActivity {
     private androidx.appcompat.widget.Toolbar mToolbar;
     private RecyclerView allMessagesView;
     private CircleImageView contactImage;
-    private TextView contactName, lastSeen;
+    private TextView contactName, lastSeenTextView;
 
     private EditText messageInput;
     private ImageView sendBtn, attachBtn;
@@ -89,9 +88,10 @@ public class ChatActivity extends AppCompatActivity {
 
         contactImage = findViewById(R.id.contactImage);
         contactName = findViewById(R.id.contactName);
-        lastSeen = findViewById(R.id.contact_last_seen);
+        lastSeenTextView = findViewById(R.id.contact_last_seen);
 
         setDetails();
+        messagesList.clear();
         loadMessages();
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
@@ -114,8 +114,10 @@ public class ChatActivity extends AppCompatActivity {
 
                 Messages message = (Messages) dataSnapshot.getValue(Messages.class);
 
-                messagesList.add(message);
-                mAdapter.notifyDataSetChanged();
+                if(dataSnapshot.getChildrenCount() > messagesList.size()) {
+                    messagesList.add(message);
+                    mAdapter.notifyDataSetChanged();
+                }
 
                 allMessagesView.smoothScrollToPosition(messagesList.size() - 1);
             }
@@ -189,6 +191,19 @@ public class ChatActivity extends AppCompatActivity {
                     String name = dataSnapshot.child("name").getValue().toString();
                     contactName.setText(name);
                 }
+                if(dataSnapshot.hasChild("online")) {
+                    if(!dataSnapshot.child("online").getValue().toString().equals("true")) {
+
+                        String timeEpoch = dataSnapshot.child("online").getValue().toString();
+                        GetTimeAgo getTimeAgo = new GetTimeAgo();
+                        long lastSeen = Long.parseLong(timeEpoch);
+                        String time = getTimeAgo.getTimeAgo(lastSeen, ChatActivity.this);
+                        lastSeenTextView.setText(time);
+
+                    }else {
+                        lastSeenTextView.setText("online");
+                    }
+                }
                 if(dataSnapshot.hasChild("imageComp")){
                     String image = dataSnapshot.child("imageComp").getValue().toString();
                     Glide.with(contactImage.getContext()).load(image).into(contactImage);
@@ -201,6 +216,27 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String  currentUid = currentUser.getUid();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(currentUid).child("online").setValue("true");
+
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        if(currentUser != null) {
+            FirebaseDatabase.getInstance().getReference().child("Users").child(currentUser).child("online").setValue(ServerValue.TIMESTAMP);
+        }
     }
 
 

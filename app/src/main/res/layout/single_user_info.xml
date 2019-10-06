@@ -33,8 +33,7 @@
         android:layout_below="@+id/userSingleName"
         android:layout_marginTop="4dp"
         android:layout_marginStart="20dp"
-        android:layout_toEndOf="@+id/profileSingleImage"
-        android:src="@drawable/online_icon" />
+        android:layout_toEndOf="@+id/profileSingleImage" />
 
     <TextView
         android:id="@+id/onlineText"

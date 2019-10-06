@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,9 +54,21 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                     holder.mUserName.setText(name);
                     if(dataSnapshot.hasChild("imageComp")) {
                         String image = dataSnapshot.child("imageComp").getValue().toString();
-                        Glide.with(holder.mUserName.getContext())
+                        Picasso.with(holder.mUserName.getContext())
                                 .load(image)
                                 .into(holder.mUserImage);
+                    }
+                    if(dataSnapshot.hasChild("online")) {
+                        if(!dataSnapshot.child("online").getValue().toString().equals("true")) {
+                            holder.onlineIcon.setBackgroundResource(R.drawable.offline_icon);
+                            holder.onlineStatus.setText("offline");
+                        } else {
+                            holder.onlineIcon.setBackgroundResource(R.drawable.online_icon);
+                            holder.onlineStatus.setText("online");
+                        }
+                    } else {
+                        holder.onlineIcon.setBackgroundResource(R.drawable.offline_icon);
+                        holder.onlineStatus.setText("offline");
                     }
 
                 }

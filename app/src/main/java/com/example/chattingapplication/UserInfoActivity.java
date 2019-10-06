@@ -26,7 +26,6 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -37,7 +36,7 @@ public class UserInfoActivity extends AppCompatActivity {
     private EditText mUserName;
     private Button setDetailsBtn;
 
-    private int PICK_IMAGE = 1;
+    private int GALLERY_PICK = 1;
 
     private Uri filePath;
     private Bitmap selectedImage;
@@ -61,7 +60,6 @@ public class UserInfoActivity extends AppCompatActivity {
         progressBar = new ProgressDialog(this);
 
         mRootRef = FirebaseDatabase.getInstance().getReference();
-
         mCurrentUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         
         setDetailsBtn.setOnClickListener(new View.OnClickListener() {
@@ -70,7 +68,7 @@ public class UserInfoActivity extends AppCompatActivity {
                 setDetails();
             }
         });
-        
+
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,25 +80,11 @@ public class UserInfoActivity extends AppCompatActivity {
 
     private void pickImageFromGallery() {
 
-        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent galleryIntent = new Intent();
+        galleryIntent.setType("image/*");
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
-        getIntent.setType("image/*");
-
-
-
-        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-        pickIntent.setType("image/*");
-
-
-
-        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-
-
-
-        startActivityForResult(chooserIntent, PICK_IMAGE);
+        startActivityForResult(Intent.createChooser(galleryIntent, "SELECT IMAGE"), GALLERY_PICK);
 
     }
 
@@ -115,7 +99,6 @@ public class UserInfoActivity extends AppCompatActivity {
             progressBar.setCanceledOnTouchOutside(false);
             progressBar.show();
 
-
             if(filePath != null) {
                 uploadImage(filePath);
             } else {
@@ -124,6 +107,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
                 mRootRef.child("Users").child(mCurrentUID).setValue(detailMap);
                 Intent i = new Intent(UserInfoActivity.this, StartActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 progressBar.dismiss();
             }
@@ -136,48 +120,32 @@ public class UserInfoActivity extends AppCompatActivity {
     private void uploadImage(final Uri imagePath) {
 
         final StorageReference imageStorageRef = FirebaseStorage.getInstance().getReference().child("Images").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Posts");
-
         final StorageReference compressedImageRef = imageStorageRef.child("/" + System.currentTimeMillis() + " - Compressed Pic.jpg");
-
         final StorageReference imageRef = imageStorageRef.child("/" + System.currentTimeMillis() + " - Pic.jpg");
-
 
         try {
 
             final InputStream imageStream = getContentResolver().openInputStream(imagePath);
-
             selectedImage = BitmapFactory.decodeStream(imageStream);
 
         } catch (FileNotFoundException e) {
-
             e.printStackTrace();
-
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
-
         }
-
-
 
         Bitmap bmpCompressed = selectedImage;
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        bmpCompressed.compress(Bitmap.CompressFormat.JPEG, 25, baos);
-
+        bmpCompressed.compress(Bitmap.CompressFormat.JPEG, 15, baos);
         byte[] data = baos.toByteArray();
 
-
         //uploading the image
-
         UploadTask compressedUploadTask = compressedImageRef.putBytes(data);
-
         compressedUploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
             @Override
 
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-
 
                 compressedImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -185,11 +153,8 @@ public class UserInfoActivity extends AppCompatActivity {
 
                     public void onSuccess(Uri uri) {
 
-
                         final HashMap<String, String> postMap = new HashMap();
-
                         postMap.put("imageComp",uri.toString());
-
                         UploadTask uploadTask = imageRef.putFile(imagePath);
 
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -197,8 +162,6 @@ public class UserInfoActivity extends AppCompatActivity {
                             @Override
 
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-
 
                                 imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -220,6 +183,7 @@ public class UserInfoActivity extends AppCompatActivity {
                                 Toast.makeText(UserInfoActivity.this, "Upload Successful", Toast.LENGTH_SHORT).show();
                                 progressBar.dismiss();
                                 Intent i = new Intent(UserInfoActivity.this, StartActivity.class);
+                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(i);
 
                             }
@@ -229,9 +193,7 @@ public class UserInfoActivity extends AppCompatActivity {
                             @Override
 
                             public void onFailure(@NonNull Exception e) {
-
                                 Toast.makeText(UserInfoActivity.this, "Upload Failed -> " + e, Toast.LENGTH_LONG).show();
-
                             }
 
                         });
@@ -247,9 +209,7 @@ public class UserInfoActivity extends AppCompatActivity {
             @Override
 
             public void onFailure(@NonNull Exception e) {
-
                 Toast.makeText(UserInfoActivity.this, "Upload Failed -> " + e, Toast.LENGTH_LONG).show();
-
             }
 
         });
@@ -258,37 +218,17 @@ public class UserInfoActivity extends AppCompatActivity {
 
 
     @Override
-
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
-
         super.onActivityResult(reqCode, resultCode, data);
-
-
-
-
-
-        if (resultCode == RESULT_OK) {
-
-
-
+        if (reqCode == GALLERY_PICK && resultCode == RESULT_OK) {
             if(data.getData() != null) {
-
                 filePath = data.getData();
 
                 profilePic.setImageURI(filePath);
-
             }
-
-
-
         }else {
-
             Toast.makeText(UserInfoActivity.this, "You haven't picked Image", Toast.LENGTH_LONG).show();
-
         }
-
     }
-
-
 
 }

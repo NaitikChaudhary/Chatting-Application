@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,7 +57,6 @@ public class ContactsFragment extends Fragment {
         mAllUsersView.setLayoutManager(mLinearLayout);
         mAllUsersView.setAdapter(mAdapter);
 
-        mList.clear();
         loadContacts();
 
         return v;
@@ -72,12 +72,16 @@ public class ContactsFragment extends Fragment {
                 for(DataSnapshot usersSnap : dataSnapshot.getChildren()) {
 
                     Users u = usersSnap.getValue(Users.class);
-                    if(!u.getUID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                        mList.add(u);
-                        mAdapter.notifyDataSetChanged();
+                    FirebaseUser mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if(mCurrentUser != null) {
+                        if(!u.getUID().equals(mCurrentUser.getUid()) && mList.size() < dataSnapshot.getChildrenCount()-1){
+                            mList.add(u);
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
 
                 }
+
             }
 
             @Override

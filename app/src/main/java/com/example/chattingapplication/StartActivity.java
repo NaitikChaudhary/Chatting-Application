@@ -1,10 +1,15 @@
 package com.example.chattingapplication;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -12,7 +17,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+
 public class StartActivity extends AppCompatActivity {
+
+    private androidx.appcompat.widget.Toolbar mToolbar;
 
     private ViewPager mViewPager;
     private EditText searchUser;
@@ -28,6 +40,18 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
+        mToolbar = findViewById(R.id.start_app_bar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View action_bar_view = layoutInflater.inflate(R.layout.app_custom_toolbar, null);
+
+        actionBar.setCustomView(action_bar_view);
+
         mViewPager = findViewById(R.id.startPager);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -37,9 +61,6 @@ public class StartActivity extends AppCompatActivity {
 
         searchUser = findViewById(R.id.searchContacts);
         searchUser.setFocusable(false);
-
-//        Intent i = new Intent(StartActivity.this, ChatActivity.class);
-//        startActivity(i);
 
         searchUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +120,56 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
-
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+
+        if(item.getItemId() == R.id.main_logout_button) {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if(currentUser != null) {
+                FirebaseDatabase.getInstance().getReference().child("Users").child(currentUser.getUid()).child("online").setValue(ServerValue.TIMESTAMP);
+            }
+            FirebaseAuth.getInstance().signOut();
+
+            Intent i = new Intent(StartActivity.this, MainActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+
+        } else if(item.getItemId() == R.id.main_settings_button) {
+            Intent i = new Intent(StartActivity.this, UserInfoActivity.class);
+            startActivity(i);
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String currentUid = currentUser.getUid();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(currentUid).child("online").setValue("true");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(currentUser != null) {
+            FirebaseDatabase.getInstance().getReference().child("Users").child(currentUser.getUid()).child("online").setValue(ServerValue.TIMESTAMP);
+        }
+    }
+
 }

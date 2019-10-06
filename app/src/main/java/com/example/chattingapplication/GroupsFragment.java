@@ -19,8 +19,6 @@ import com.google.firebase.auth.FirebaseAuth;
  */
 public class GroupsFragment extends Fragment {
 
-    private Button logoutBtn;
-
     public GroupsFragment() {
         // Required empty public constructor
     }
@@ -32,16 +30,6 @@ public class GroupsFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View v = inflater.inflate(R.layout.fragment_groups, container, false);
-
-        logoutBtn = v.findViewById(R.id.logoutBtn);
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                Intent i = new Intent(getActivity().getApplicationContext(), MainActivity.class);
-                startActivity(i);
-            }
-        });
 
         return v;
     }
